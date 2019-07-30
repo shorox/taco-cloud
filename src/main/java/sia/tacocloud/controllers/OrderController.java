@@ -17,4 +17,9 @@ public class OrderController {
     model.addAttribute("order", new Order());
     return "orderFrom";
   }
+
+  public String processOrder(Order order) {
+    log.info("Order submitted: {}", order);
+    return "redirect:/";
+  }
 }
