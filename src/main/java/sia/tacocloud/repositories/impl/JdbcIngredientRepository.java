@@ -6,6 +6,9 @@ import org.springframework.stereotype.Repository;
 import sia.tacocloud.dto.Ingredient;
 import sia.tacocloud.repositories.IngredientRepository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 @Repository
 public class JdbcIngredientRepository implements IngredientRepository {
 
@@ -18,16 +21,25 @@ public class JdbcIngredientRepository implements IngredientRepository {
 
   @Override
   public Iterable<Ingredient> findAll() {
-    throw new UnsupportedOperationException();
+    return jdbcTemplate.query("select id, name, type from ingredient", this::mapRowToIngredient);
   }
 
   @Override
   public Ingredient findOne(String id) {
-    throw new UnsupportedOperationException();
+    return jdbcTemplate.queryForObject("select id, name, type from ingredient where id = ?",
+            this::mapRowToIngredient, id);
   }
 
   @Override
   public Ingredient save(Ingredient ingredient) {
     throw new UnsupportedOperationException();
+  }
+
+  private Ingredient mapRowToIngredient(ResultSet resultSet, int rowNum) throws SQLException {
+    return new Ingredient(
+            resultSet.getString("id"),
+            resultSet.getString("name"),
+            Ingredient.Type.valueOf(resultSet.getString("type"))
+    );
   }
 }
