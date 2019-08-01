@@ -13,6 +13,7 @@ import sia.tacocloud.dto.Ingredient;
 import sia.tacocloud.dto.Ingredient.Type;
 import sia.tacocloud.dto.Taco;
 import sia.tacocloud.repositories.IngredientRepository;
+import sia.tacocloud.repositories.TacoRepository;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -27,9 +28,12 @@ public class DesignTacoController {
 
   private final IngredientRepository ingredientRepository;
 
+  private TacoRepository tacoRepository;
+
   @Autowired
-  public DesignTacoController(IngredientRepository ingredientRepository) {
+  public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository tacoRepository) {
     this.ingredientRepository = ingredientRepository;
+    this.tacoRepository = tacoRepository;
   }
 
   @GetMapping
