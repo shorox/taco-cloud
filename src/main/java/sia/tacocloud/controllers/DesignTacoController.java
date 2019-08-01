@@ -5,12 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import sia.tacocloud.dto.Ingredient;
 import sia.tacocloud.dto.Ingredient.Type;
+import sia.tacocloud.dto.Order;
 import sia.tacocloud.dto.Taco;
 import sia.tacocloud.repositories.IngredientRepository;
 import sia.tacocloud.repositories.TacoRepository;
@@ -36,6 +34,16 @@ public class DesignTacoController {
     this.tacoRepository = tacoRepository;
   }
 
+  @ModelAttribute(name = "order")
+  public Order order() {
+    return new Order();
+  }
+
+  @ModelAttribute(name = "taco")
+  public Taco taco() {
+    return new Taco();
+  }
+
   @GetMapping
   public String showDesignForm(Model model) {
     List<Ingredient> ingredients = new ArrayList<>();
@@ -52,14 +60,13 @@ public class DesignTacoController {
   }
 
   @PostMapping
-  public String processDesign(@Valid Taco design, Errors errors) {
+  public String processDesign(@Valid Taco design, Errors errors, @ModelAttribute Order order) {
     if (errors.hasErrors()) {
       return "design";
     }
 
-    // Save the taco design...
-    // We'll do this in chapter 3
-    log.info("Process design: {}", design);
+    Taco saved = tacoRepository.save(design);
+    order.addDesign(saved);
 
     return "redirect:/orders/current";
   }
