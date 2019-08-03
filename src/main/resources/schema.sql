@@ -11,14 +11,14 @@ create table if not exists tacos (
     created_at timestamp not null
 );
 
-create table if not exists taco_ingredients (
+create table if not exists tacos_ingredients (
     taco bigint not null,
     ingredient varchar(4) not null
 );
 
-alter table taco_ingredients add foreign key (taco) references tacos(id);
+alter table tacos_ingredients add foreign key (taco) references tacos(id);
 
-alter table taco_ingredients add foreign key (ingredient) references ingredients(id);
+alter table tacos_ingredients add foreign key (ingredient) references ingredients(id);
 
 create table if not exists taco_orders (
     id identity,
@@ -33,11 +33,11 @@ create table if not exists taco_orders (
     created_at timestamp not null
 );
 
-create table if not exists taco_order_tacos (
+create table if not exists taco_orders_tacos (
     taco_order bigint not null,
     taco bigint not null
 );
 
-alter table taco_order_tacos add foreign key (taco_order) references taco_orders(id);
+alter table taco_orders_tacos add foreign key (taco_order) references taco_orders(id);
 
-alter table taco_order_tacos add foreign key (taco) references tacos(id);
+alter table taco_orders_tacos add foreign key (taco) references tacos(id);

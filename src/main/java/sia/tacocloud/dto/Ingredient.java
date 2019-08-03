@@ -7,8 +7,10 @@ import lombok.RequiredArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-@Entity(name = "ingredients")
+@Entity
+@Table(name = "ingredients")
 @Data
 @RequiredArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
