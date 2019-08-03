@@ -1,4 +1,4 @@
-package sia.tacocloud.dto;
+package sia.tacocloud.dao;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.CreditCardNumber;
