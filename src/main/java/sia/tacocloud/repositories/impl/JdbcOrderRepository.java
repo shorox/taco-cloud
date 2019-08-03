@@ -24,7 +24,7 @@ public class JdbcOrderRepository implements OrderRepository {
   @Autowired
   public JdbcOrderRepository(JdbcTemplate jdbcTemplate) {
     this.orderInserter = new SimpleJdbcInsert(jdbcTemplate)
-            .withTableName("taco_order")
+            .withTableName("taco_orders")
             .usingGeneratedKeyColumns("id");
 
     this.orderTacoInserter = new SimpleJdbcInsert(jdbcTemplate)
@@ -50,14 +50,14 @@ public class JdbcOrderRepository implements OrderRepository {
   private long saveOrderDetails(Order order) {
     @SuppressWarnings("unchecked")
     Map<String, Object> values = objectMapper.convertValue(order, Map.class);
-    values.put("createdAt", order.getCreatedAt());
+    values.put("created_at", order.getCreatedAt());
 
     return orderInserter.executeAndReturnKey(values).longValue();
   }
 
   private void saveTacoToOrder(Taco taco, long orderId) {
     Map<String, Object> values = new HashMap<>();
-    values.put("tacoOrder", orderId);
+    values.put("taco_order", orderId);
     values.put("taco", taco.getId());
 
     orderTacoInserter.execute(values);

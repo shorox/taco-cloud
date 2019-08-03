@@ -21,18 +21,18 @@ public class JdbcIngredientRepository implements IngredientRepository {
 
   @Override
   public Iterable<Ingredient> findAll() {
-    return jdbcTemplate.query("select id, name, type from ingredient", this::mapRowToIngredient);
+    return jdbcTemplate.query("select id, name, type from ingredients", this::mapRowToIngredient);
   }
 
   @Override
   public Ingredient findOne(String id) {
-    return jdbcTemplate.queryForObject("select id, name, type from ingredient where id = ?",
+    return jdbcTemplate.queryForObject("select id, name, type from ingredients where id = ?",
             this::mapRowToIngredient, id);
   }
 
   @Override
   public Ingredient save(Ingredient ingredient) {
-    jdbcTemplate.update("insert into ingredient (id. name, type) values (?, ?, ?)",
+    jdbcTemplate.update("insert into ingredients (id. name, type) values (?, ?, ?)",
             ingredient.getId(), ingredient.getName(), ingredient.getType().toString());
 
     return ingredient;
