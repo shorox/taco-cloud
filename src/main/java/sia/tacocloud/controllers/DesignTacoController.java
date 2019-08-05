@@ -6,10 +6,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import sia.tacocloud.dto.Ingredient;
-import sia.tacocloud.dto.Ingredient.Type;
-import sia.tacocloud.dto.Order;
-import sia.tacocloud.dto.Taco;
+import sia.tacocloud.dao.Ingredient;
+import sia.tacocloud.dao.Ingredient.Type;
+import sia.tacocloud.dao.Order;
+import sia.tacocloud.dao.Taco;
 import sia.tacocloud.repositories.IngredientRepository;
 import sia.tacocloud.repositories.TacoRepository;
 

@@ -1,4 +1,4 @@
-package sia.tacocloud.dto;
+package sia.tacocloud.dao;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.CreditCardNumber;
@@ -60,6 +60,9 @@ public class Order implements Serializable {
 
   @ManyToMany(targetEntity = Taco.class)
   private List<Taco> tacos = new ArrayList<>();
+
+  @ManyToOne
+  private User user;
 
   public void addDesign(Taco design) {
     tacos.add(design);

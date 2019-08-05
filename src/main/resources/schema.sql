@@ -20,8 +20,21 @@ alter table tacos_ingredients add foreign key (taco) references tacos(id);
 
 alter table tacos_ingredients add foreign key (ingredient) references ingredients(id);
 
+create table if not exists taco_users (
+    id identity,
+    username varchar(50) not null,
+    password varchar(250) not null,
+    fullname varchar(50) not null,
+    street varchar(50) not null,
+    city varchar(50) not null,
+    state varchar(2) not null,
+    zip varchar(10) not null,
+    phone_number varchar(20) not null
+);
+
 create table if not exists taco_orders (
     id identity,
+    taco_user bigint not null,
     delivery_name varchar(50) not null,
     delivery_street varchar(50) not null,
     delivery_city varchar(50) not null,
@@ -32,6 +45,8 @@ create table if not exists taco_orders (
     cc_cvv varchar(3) not null,
     created_at timestamp not null
 );
+
+alter table taco_orders add foreign key (taco_user) references taco_users(id);
 
 create table if not exists taco_orders_tacos (
     taco_order bigint not null,
