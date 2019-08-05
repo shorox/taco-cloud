@@ -1,4 +1,10 @@
+server:
+  port: 8080
 
 spring:
   thymeleaf:
     cache: false
+
+taco:
+  orders:
+    pageSize: 10
