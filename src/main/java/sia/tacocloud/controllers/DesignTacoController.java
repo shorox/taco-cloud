@@ -1,62 +1,39 @@
 package sia.tacocloud.controllers;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import sia.tacocloud.dao.Ingredient;
 import sia.tacocloud.dao.Ingredient.Type;
 import sia.tacocloud.dao.Order;
 import sia.tacocloud.dao.Taco;
-import sia.tacocloud.repositories.IngredientRepository;
 import sia.tacocloud.repositories.TacoRepository;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Controller
-@RequestMapping("/design")
-@SessionAttributes("order")
-@Slf4j
+@RestController
+@RequestMapping(path = "/design", produces = "application/json")
+@CrossOrigin(origins = "*")
 public class DesignTacoController {
-
-  private final IngredientRepository ingredientRepository;
 
   private TacoRepository tacoRepository;
 
   @Autowired
-  public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository tacoRepository) {
-    this.ingredientRepository = ingredientRepository;
+  EntityLinks entityLinks;
+
+  @Autowired
+  public DesignTacoController(TacoRepository tacoRepository) {
     this.tacoRepository = tacoRepository;
   }
 
-  @ModelAttribute(name = "order")
-  public Order order() {
-    return new Order();
-  }
-
-  @ModelAttribute(name = "taco")
-  public Taco taco() {
-    return new Taco();
-  }
-
-  @GetMapping
-  public String showDesignForm(Model model) {
-    List<Ingredient> ingredients = new ArrayList<>();
-    ingredientRepository.findAll().forEach(i -> ingredients.add(i));
-
-    Type[] types = Type.values();
-    for (Type type : types) {
-      model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
-    }
-
-    model.addAttribute("design", new Taco());
-
-    return "design";
+  @GetMapping("/recent")
+  public Iterable<Taco> recentTacos() {
+    PageRequest page = PageRequest.of(0, 12, Sort.by("createdAt").descending());
+    return tacoRepository.findAll(page).getContent();
   }
 
   @PostMapping
