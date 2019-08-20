@@ -3,6 +3,11 @@ package sia.tacocloud.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.EntityLinks;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import sia.tacocloud.dao.Ingredient;
@@ -13,6 +18,7 @@ import sia.tacocloud.repositories.TacoRepository;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,24 +39,27 @@ public class DesignTacoController {
   @GetMapping("/recent")
   public Iterable<Taco> recentTacos() {
     PageRequest page = PageRequest.of(0, 12, Sort.by("createdAt").descending());
-    return tacoRepository.findAll(page).getContent();
+
+    List<Taco> tacos = tacoRepository.findAll(page).getContent();
+    Resources<Resources<Taco>> recentResources = Resources.wrap(tacos);
+
+    recentResources.add(new Link("http://localhost:8080/design/recent", "recents"));
+    return recentResources;
   }
 
-  @PostMapping
-  public String processDesign(@Valid Taco design, Errors errors, @ModelAttribute Order order) {
-    if (errors.hasErrors()) {
-      return "design";
+  @GetMapping("/{id")
+  public ResponseEntity<Taco> tacoById(@PathVariable("id") Long id) {
+    Optional<Taco> tacoOptional = tacoRepository.findById(id);
+    if (tacoOptional.isPresent()) {
+      return new ResponseEntity<>(tacoOptional.get(), HttpStatus.OK);
     }
 
-    Taco saved = tacoRepository.save(design);
-    order.addDesign(saved);
-
-    return "redirect:/orders/current";
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 
-  private List<Ingredient> filterByType(List<Ingredient> ingredients, Type type) {
-    return ingredients.stream()
-            .filter(x -> x.getType().equals(type))
-            .collect(Collectors.toList());
+  @PostMapping(consumes = "application/json")
+  @ResponseStatus(HttpStatus.CREATED)
+  public Taco postTaco(@RequestBody Taco taco) {
+    return tacoRepository.save(taco);
   }
 }
