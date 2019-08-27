@@ -1,4 +1,4 @@
-package sia.tacocloud.resource;
+package sia.tacocloud.resources;
 
 import lombok.Getter;
 import org.springframework.hateoas.ResourceSupport;
