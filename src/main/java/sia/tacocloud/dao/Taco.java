@@ -1,6 +1,7 @@
 package sia.tacocloud.dao;
 
 import lombok.Data;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "tacos")
+@RestResource(rel = "tacos", path = "tacos")
 @Data
 public class Taco {
 
