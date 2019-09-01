@@ -1,79 +1,64 @@
 package sia.tacocloud.controllers;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.Errors;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.EntityLinks;
+import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sia.tacocloud.dao.Ingredient;
-import sia.tacocloud.dao.Ingredient.Type;
-import sia.tacocloud.dao.Order;
+import sia.tacocloud.assemblers.TacoResourceAssembler;
 import sia.tacocloud.dao.Taco;
-import sia.tacocloud.repositories.IngredientRepository;
 import sia.tacocloud.repositories.TacoRepository;
+import sia.tacocloud.resources.TacoResource;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-@Controller
-@RequestMapping("/design")
-@SessionAttributes("order")
-@Slf4j
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
+@RestController
+@RequestMapping(path = "/design", produces = "application/json")
+@CrossOrigin(origins = "*")
 public class DesignTacoController {
-
-  private final IngredientRepository ingredientRepository;
 
   private TacoRepository tacoRepository;
 
   @Autowired
-  public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository tacoRepository) {
-    this.ingredientRepository = ingredientRepository;
+  EntityLinks entityLinks;
+
+  @Autowired
+  public DesignTacoController(TacoRepository tacoRepository) {
     this.tacoRepository = tacoRepository;
   }
 
-  @ModelAttribute(name = "order")
-  public Order order() {
-    return new Order();
+  @GetMapping("/recent")
+  public Resources<TacoResource> recentTacos() {
+    PageRequest page = PageRequest.of(0, 12, Sort.by("createdAt").descending());
+    List<Taco> tacos = tacoRepository.findAll(page).getContent();
+
+    List<TacoResource> tacoResources = new TacoResourceAssembler().toResources(tacos);
+    Resources<TacoResource> recentResources = new Resources<>(tacoResources);
+    recentResources.add(linkTo(methodOn(DesignTacoController.class).recentTacos()).withRel("recents"));
+
+    return recentResources;
   }
 
-  @ModelAttribute(name = "taco")
-  public Taco taco() {
-    return new Taco();
-  }
-
-  @GetMapping
-  public String showDesignForm(Model model) {
-    List<Ingredient> ingredients = new ArrayList<>();
-    ingredientRepository.findAll().forEach(i -> ingredients.add(i));
-
-    Type[] types = Type.values();
-    for (Type type : types) {
-      model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
+  @GetMapping("/{id")
+  public ResponseEntity<Taco> tacoById(@PathVariable("id") Long id) {
+    Optional<Taco> tacoOptional = tacoRepository.findById(id);
+    if (tacoOptional.isPresent()) {
+      return new ResponseEntity<>(tacoOptional.get(), HttpStatus.OK);
     }
 
-    model.addAttribute("design", new Taco());
-
-    return "design";
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 
-  @PostMapping
-  public String processDesign(@Valid Taco design, Errors errors, @ModelAttribute Order order) {
-    if (errors.hasErrors()) {
-      return "design";
-    }
-
-    Taco saved = tacoRepository.save(design);
-    order.addDesign(saved);
-
-    return "redirect:/orders/current";
-  }
-
-  private List<Ingredient> filterByType(List<Ingredient> ingredients, Type type) {
-    return ingredients.stream()
-            .filter(x -> x.getType().equals(type))
-            .collect(Collectors.toList());
+  @PostMapping(consumes = "application/json")
+  @ResponseStatus(HttpStatus.CREATED)
+  public Taco postTaco(@RequestBody Taco taco) {
+    return tacoRepository.save(taco);
   }
 }
